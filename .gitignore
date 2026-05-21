@@ -18,7 +18,7 @@ env/
 .venv/
 
 # Data (downloaded datasets — too large for git)
-data/
+/data/
 *.tar.gz
 *.zip
 
@@ -50,4 +50,12 @@ desktop.ini
 
 # Environment
 .env
-implementation_plan
+
+# Internal planning (not for GitHub)
+implementation_plan.md
+
+# Test smoke tests (dev-only)
+test_phase*.py
+
+# uv lock file
+uv.lock

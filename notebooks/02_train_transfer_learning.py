@@ -16,6 +16,11 @@ from google.colab import drive
 drive.mount('/content/drive')
 
 # %%
+# Clone the repo
+!git clone https://github.com/rushi-prog/Image-Classification-From-Scratch-then-Transfer-Learning.git /content/tier1
+%cd /content/tier1
+
+# %%
 !pip install -q torch torchvision timm wandb pyyaml tqdm scikit-learn matplotlib seaborn grad-cam albumentations
 
 # %%

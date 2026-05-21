@@ -14,13 +14,9 @@ from google.colab import drive
 drive.mount('/content/drive')
 
 # %%
-# Clone your repo (replace with your GitHub URL)
-# !git clone https://github.com/YOUR_USERNAME/tier1-image-classification.git /content/tier1
-# %cd /content/tier1
-
-# OR upload the project folder to Drive and link it:
-# !ln -s /content/drive/MyDrive/projects/computervision/tier1 /content/tier1
-# %cd /content/tier1
+# Clone the repo
+!git clone https://github.com/rushi-prog/Image-Classification-From-Scratch-then-Transfer-Learning.git /content/tier1
+%cd /content/tier1
 
 # %%
 # Install dependencies
