@@ -1,0 +1,100 @@
+# ============================================
+# CNN From Scratch — Food-101 Configuration
+# ============================================
+# A custom-designed CNN trained from random init.
+# Goal: ~55-65% accuracy. Proves you understand
+# architecture design without pretrained weights.
+# ============================================
+
+# --- Experiment ---
+experiment:
+  name: "cnn_scratch_food101"
+  project: "tier1-image-classification"
+  tags: ["cnn", "scratch", "food101", "baseline"]
+  seed: 42
+
+# --- Dataset ---
+data:
+  dataset: "food101"
+  data_dir: "./data"
+  num_classes: 101
+  image_size: 64           # Smaller for scratch CNN (faster training)
+  batch_size: 128
+  num_workers: 4
+  pin_memory: true
+
+# --- Augmentation ---
+augmentation:
+  # Standard augmentations
+  random_horizontal_flip: true
+  random_crop: true
+  random_crop_padding: 4
+  color_jitter:
+    brightness: 0.2
+    contrast: 0.2
+    saturation: 0.2
+    hue: 0.1
+  random_erasing: true
+  random_erasing_prob: 0.25
+  # Advanced augmentations
+  mixup:
+    enabled: true
+    alpha: 0.2             # Beta distribution parameter
+  cutmix:
+    enabled: true
+    alpha: 1.0
+  mix_prob: 0.5            # Probability of applying Mixup OR CutMix per batch
+
+# --- Model ---
+model:
+  type: "cnn_scratch"
+  # Architecture: 5 conv blocks with increasing channels
+  channels: [64, 128, 256, 512, 512]
+  use_batch_norm: true
+  dropout_rate: 0.3
+  global_avg_pool: true    # GAP instead of flatten → fewer params
+
+# --- Training ---
+training:
+  epochs: 100
+  optimizer:
+    type: "adamw"
+    lr: 0.001
+    weight_decay: 0.01
+    betas: [0.9, 0.999]
+  scheduler:
+    type: "cosine_annealing_warm_restarts"
+    T_0: 10                # Restart every 10 epochs
+    T_mult: 2              # Double restart period each cycle
+    eta_min: 0.00001
+  warmup:
+    enabled: true
+    epochs: 5
+    start_lr: 0.0001
+  gradient_clip: 1.0
+  mixed_precision: true    # FP16 — faster on T4
+  label_smoothing: 0.1
+
+# --- Callbacks ---
+callbacks:
+  early_stopping:
+    enabled: true
+    patience: 15
+    monitor: "val_accuracy"
+    mode: "max"
+  checkpoint:
+    save_best: true
+    save_last: true
+    monitor: "val_accuracy"
+    mode: "max"
+    dirpath: "./results/checkpoints"
+
+# --- Logging ---
+logging:
+  wandb:
+    enabled: true           # W&B account created!
+    project: "tier1-image-classification"
+    entity: null            # Optional: set your W&B username here
+  log_interval: 10         # Log every N batches
+  log_images: true         # Log sample predictions to W&B
+  log_gradients: false     # Log gradient histograms (expensive)

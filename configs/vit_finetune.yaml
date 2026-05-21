@@ -1,0 +1,105 @@
+# ============================================
+# Vision Transformer (ViT) Fine-Tuning — Food-101
+# ============================================
+# Fine-tune a pretrained ViT using timm.
+# Shows you understand transformers in vision.
+# Goal: ~88-92% accuracy.
+# ============================================
+
+# --- Experiment ---
+experiment:
+  name: "vit_finetune_food101"
+  project: "tier1-image-classification"
+  tags: ["vit", "transformer", "transfer-learning", "food101"]
+  seed: 42
+
+# --- Dataset ---
+data:
+  dataset: "food101"
+  data_dir: "./data"
+  num_classes: 101
+  image_size: 224          # ViT expects 224×224
+  batch_size: 32           # Smaller batch — ViT uses more memory
+  num_workers: 4
+  pin_memory: true
+
+# --- Augmentation ---
+augmentation:
+  random_horizontal_flip: true
+  random_crop: true
+  random_crop_padding: 4
+  color_jitter:
+    brightness: 0.3
+    contrast: 0.3
+    saturation: 0.3
+    hue: 0.1
+  random_erasing: true
+  random_erasing_prob: 0.25
+  normalize:
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]
+  # Mixup/CutMix — especially helpful for ViT
+  mixup:
+    enabled: true
+    alpha: 0.8             # Higher alpha for ViT (per DeiT recipe)
+  cutmix:
+    enabled: true
+    alpha: 1.0
+  mix_prob: 0.5
+
+# --- Model ---
+model:
+  type: "vit"
+  backbone: "vit_small_patch16_224"   # Small ViT — trainable on T4
+  pretrained: true                     # ImageNet-21k pretrained
+  drop_rate: 0.1
+  attn_drop_rate: 0.0
+  drop_path_rate: 0.1                 # Stochastic depth
+
+# --- Training ---
+training:
+  epochs: 30               # ViT converges faster with pretrained weights
+  optimizer:
+    type: "adamw"
+    lr: 0.00005            # Very low LR for ViT fine-tuning
+    weight_decay: 0.05     # Higher weight decay for ViT
+    betas: [0.9, 0.999]
+  # Layer-wise LR decay (deeper layers get higher LR)
+  layer_lr_decay:
+    enabled: true
+    decay_rate: 0.75       # Each layer gets 0.75× the LR of the layer above
+  scheduler:
+    type: "cosine_annealing"
+    T_max: 30
+    eta_min: 0.0000001
+  warmup:
+    enabled: true
+    epochs: 5
+    start_lr: 0.000001
+  gradient_clip: 1.0
+  mixed_precision: true
+  label_smoothing: 0.1
+
+# --- Callbacks ---
+callbacks:
+  early_stopping:
+    enabled: true
+    patience: 8
+    monitor: "val_accuracy"
+    mode: "max"
+  checkpoint:
+    save_best: true
+    save_last: true
+    monitor: "val_accuracy"
+    mode: "max"
+    dirpath: "./results/checkpoints"
+
+# --- Logging ---
+logging:
+  wandb:
+    enabled: true
+    project: "tier1-image-classification"
+    entity: null
+  log_interval: 10
+  log_images: true
+  log_gradients: false

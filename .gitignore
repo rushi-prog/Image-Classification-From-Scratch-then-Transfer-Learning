@@ -1,0 +1,53 @@
+# ============================================
+# Tier 1 — Image Classification
+# ============================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Data (downloaded datasets — too large for git)
+data/
+*.tar.gz
+*.zip
+
+# Model Checkpoints & Results (large files)
+results/checkpoints/
+results/figures/
+results/metrics/
+*.pth
+*.pt
+*.onnx
+
+# Weights & Biases
+wandb/
+*.wandb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment
+.env
+implementation_plan
