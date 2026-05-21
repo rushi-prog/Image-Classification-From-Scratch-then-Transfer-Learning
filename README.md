@@ -1,240 +1,204 @@
-# 🖼️ Tier 1 — Image Classification: From Scratch → Transfer Learning → ViT
+<div align="center">
 
-> "I know the fundamentals cold."
+# 🖼️ Image Classification: From Scratch → Transfer Learning → ViT
 
-A complete image classification pipeline on **Food-101** (101 food categories, 101K images), progressing from a CNN built from scratch to Vision Transformer fine-tuning — with Grad-CAM explainability, Mixup/CutMix augmentation, and W&B experiment tracking.
+**A complete image classification pipeline on Food-101**
 
----
+CNN From Scratch • ResNet-50 • EfficientNet-B0 • Vision Transformer
 
-## 🏗️ Architecture Progression
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rushi-prog/Image-Classification-From-Scratch-then-Transfer-Learning/blob/main/notebooks/01_train_cnn_scratch.ipynb)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.x-ee4c2c.svg)](https://pytorch.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-```
-CNN From Scratch  →  ResNet-50 / EfficientNet-B0  →  ViT-Small
-   (9.57M params)       (23.7M / 4.1M params)        (21.7M params)
-   ~45-55% acc          ~78-85% acc                   ~82-88% acc
-```
-
-| Model | Type | Key Technique | Expected Acc |
-|-------|------|---------------|:---:|
-| **ScratchCNN** | 5-block CNN | Kaiming init, progressive dropout | ~50% |
-| **ResNet-50** | Transfer Learning | Gradual unfreezing, discriminative LR | ~82% |
-| **EfficientNet-B0** | Transfer Learning | Compound scaling, efficient backbone | ~80% |
-| **ViT-Small** | Transformer | Layer-wise LR decay (LLRD) | ~85% |
+</div>
 
 ---
 
-## 🔥 What Makes This Portfolio-Grade
+## 💡 About
 
-### Techniques Implemented
-- **Mixup & CutMix** — batch-level augmentation with soft label support
+This project progressively builds image classifiers on [Food-101](https://data.vision.ee.ethz.ch/cvl/datasets_extra/food-101/) (101 food categories, 101K images) — starting from a CNN designed from scratch, then leveraging transfer learning, and finally fine-tuning a Vision Transformer. Every model includes Grad-CAM explainability, modern augmentation (Mixup/CutMix), and live W&B experiment tracking.
+
+```
+CNN From Scratch  ──→  ResNet-50 / EfficientNet-B0  ──→  ViT-Small
+   (9.57M params)         (23.7M / 4.1M params)          (21.7M params)
+```
+
+---
+
+## 🏗️ Models & Techniques
+
+| Model | Architecture | Key Technique | Params |
+|:------|:-------------|:--------------|:------:|
+| **ScratchCNN** | Custom 5-block CNN | Kaiming init, BatchNorm, progressive dropout | 9.57M |
+| **ResNet-50** | Transfer Learning | Gradual unfreezing + discriminative LR | 23.71M |
+| **EfficientNet-B0** | Transfer Learning | Compound scaling, efficient backbone | 4.14M |
+| **ViT-Small** | Vision Transformer | Layer-wise LR Decay (LLRD), stochastic depth | 21.70M |
+
+### Training Techniques
+- **Mixup & CutMix** — batch-level augmentation with soft labels
 - **Label Smoothing** — prevents overconfident predictions
-- **Gradual Unfreezing** — train head first, then progressively unfreeze backbone
-- **Discriminative Learning Rates** — backbone gets 10x lower LR than head
-- **Layer-wise LR Decay (LLRD)** — ViT-specific: deeper layers get higher LR
-- **Mixed Precision (AMP)** — FP16 training for 2x GPU speedup
-- **Gradient Clipping** — prevents exploding gradients
-- **Cosine Annealing + Warm Restarts** — LR scheduling with warmup
-- **Grad-CAM** — visual explainability for all model types
-
-### Engineering Quality
-- **Unified Trainer** — one training loop handles CNN, ResNet, EfficientNet, ViT
-- **Config-driven** — YAML configs control everything (no hardcoded values)
-- **W&B Dashboard** — real-time training monitoring
+- **Mixed Precision (AMP)** — FP16 training for 2x speed on GPU
+- **Cosine Annealing + Warmup** — smooth LR scheduling
+- **Gradient Clipping** — training stability
 - **EarlyStopping + Checkpointing** — automatic best model saving
-- **CLI with overrides** — `--epochs 50 --lr 0.0005 --no-wandb`
+
+### Explainability
+- **Grad-CAM** — heatmaps showing what each model focuses on
+- Works across CNN, ResNet, EfficientNet, and ViT architectures
 
 ---
 
 ## 📁 Project Structure
 
 ```
-tier1/
-├── configs/                        # Experiment configs (YAML)
-│   ├── cnn_scratch.yaml            # CNN from scratch
-│   ├── resnet50_finetune.yaml      # ResNet-50 transfer learning
-│   ├── efficientnet_finetune.yaml  # EfficientNet-B0 transfer learning
-│   └── vit_finetune.yaml          # ViT fine-tuning
+├── configs/                          # YAML experiment configs
+│   ├── cnn_scratch.yaml
+│   ├── resnet50_finetune.yaml
+│   ├── efficientnet_finetune.yaml
+│   └── vit_finetune.yaml
 │
-├── src/                            # Source code
-│   ├── data/
-│   │   ├── dataset.py              # Food-101 DataLoader factory
-│   │   ├── augmentations.py        # Transforms + Mixup + CutMix
-│   │   └── download.py             # Dataset download script
+├── src/
+│   ├── data/                         # Dataset loading + augmentations
+│   │   ├── dataset.py                # Food-101 DataLoader factory
+│   │   └── augmentations.py          # Transforms + Mixup + CutMix
 │   │
-│   ├── models/
-│   │   ├── cnn_scratch.py          # Custom 5-block CNN (9.57M params)
-│   │   ├── transfer_learn.py       # ResNet/EfficientNet wrapper
-│   │   └── vit_finetune.py         # ViT via timm with LLRD
+│   ├── models/                       # All model architectures
+│   │   ├── cnn_scratch.py            # Custom CNN (from scratch)
+│   │   ├── transfer_learn.py         # ResNet/EfficientNet wrapper
+│   │   └── vit_finetune.py           # ViT via timm with LLRD
 │   │
-│   ├── training/
-│   │   ├── trainer.py              # Unified training loop
-│   │   ├── losses.py               # Label smoothing + soft target CE
-│   │   ├── schedulers.py           # Cosine + warmup schedulers
-│   │   └── callbacks.py            # EarlyStopping + ModelCheckpoint
+│   ├── training/                     # Training infrastructure
+│   │   ├── trainer.py                # Unified training loop (AMP, W&B)
+│   │   ├── losses.py                 # Label smoothing + soft target CE
+│   │   ├── schedulers.py             # LR schedulers with warmup
+│   │   └── callbacks.py              # EarlyStopping + ModelCheckpoint
 │   │
-│   ├── evaluation/
-│   │   ├── metrics.py              # Top-1/5, F1, per-class accuracy
-│   │   └── gradcam.py              # Grad-CAM + heatmap overlay
+│   ├── evaluation/                   # Evaluation + explainability
+│   │   ├── metrics.py                # Top-1/5, F1, per-class accuracy
+│   │   └── gradcam.py                # Grad-CAM for all model types
 │   │
-│   └── utils/
-│       ├── config.py               # YAML config loader
-│       ├── logging_utils.py        # W&B logger
-│       └── visualization.py        # Training curves, confusion matrix
+│   └── utils/                        # Config, logging, visualization
 │
-├── scripts/                        # CLI entry points
-│   ├── train.py                    # Training script
-│   ├── evaluate.py                 # Evaluation script
-│   └── visualize_gradcam.py        # Grad-CAM generation
+├── scripts/                          # CLI entry points
+│   ├── train.py                      # python scripts/train.py --config ...
+│   ├── evaluate.py                   # Full test set evaluation
+│   └── visualize_gradcam.py          # Generate Grad-CAM grids
 │
-├── notebooks/                      # Colab notebooks (.py format)
-│   ├── 01_train_cnn_scratch.py
-│   ├── 02_train_transfer_learning.py
-│   ├── 03_train_vit.py
-│   └── 04_gradcam_analysis.py
-│
-└── results/                        # Training outputs (gitignored)
-    ├── checkpoints/                # Model weights
-    ├── figures/                    # Training curves, Grad-CAM
-    └── metrics/                    # JSON evaluation results
+└── notebooks/                        # Colab notebooks (.ipynb)
+    ├── 01_train_cnn_scratch.ipynb
+    ├── 02_train_transfer_learning.ipynb
+    ├── 03_train_vit.ipynb
+    └── 04_gradcam_analysis.ipynb
 ```
 
 ---
 
 ## 🚀 Quick Start
 
-### Local (CPU — for testing)
+### Option 1: Google Colab (Recommended)
+
+Click the badge or open any notebook from `notebooks/` in Colab with **T4 GPU** runtime:
+
+| Notebook | What | Colab |
+|----------|------|:-----:|
+| `01_train_cnn_scratch.ipynb` | Train CNN from scratch | [![Open](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rushi-prog/Image-Classification-From-Scratch-then-Transfer-Learning/blob/main/notebooks/01_train_cnn_scratch.ipynb) |
+| `02_train_transfer_learning.ipynb` | ResNet-50 + EfficientNet-B0 | [![Open](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rushi-prog/Image-Classification-From-Scratch-then-Transfer-Learning/blob/main/notebooks/02_train_transfer_learning.ipynb) |
+| `03_train_vit.ipynb` | ViT fine-tuning with LLRD | [![Open](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rushi-prog/Image-Classification-From-Scratch-then-Transfer-Learning/blob/main/notebooks/03_train_vit.ipynb) |
+| `04_gradcam_analysis.ipynb` | Grad-CAM for all models | [![Open](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rushi-prog/Image-Classification-From-Scratch-then-Transfer-Learning/blob/main/notebooks/04_gradcam_analysis.ipynb) |
+
+### Option 2: CLI
+
 ```bash
-# Install dependencies
-uv add torch torchvision timm wandb pyyaml tqdm scikit-learn matplotlib seaborn
+# Install
+pip install torch torchvision timm wandb pyyaml tqdm scikit-learn matplotlib seaborn
 
-# Run smoke tests
-uv run python test_phase2.py
-uv run python test_phase3_5.py
-```
-
-### Google Colab (GPU — for training)
-1. Upload the project to Google Drive or clone from GitHub
-2. Open any notebook from `notebooks/` in Colab
-3. Set runtime to **T4 GPU**
-4. Run all cells
-
-### CLI Training
-```bash
-# Train CNN from scratch
+# Train any model
 python scripts/train.py --config configs/cnn_scratch.yaml
-
-# Train ResNet-50 (transfer learning)
 python scripts/train.py --config configs/resnet50_finetune.yaml
-
-# Train EfficientNet-B0
-python scripts/train.py --config configs/efficientnet_finetune.yaml
-
-# Train ViT
 python scripts/train.py --config configs/vit_finetune.yaml
 
-# With overrides
+# Override from CLI
 python scripts/train.py --config configs/cnn_scratch.yaml --epochs 50 --lr 0.0005 --no-wandb
-```
 
-### Evaluation
-```bash
-# Full test evaluation
-python scripts/evaluate.py \
-    --config configs/cnn_scratch.yaml \
-    --checkpoint results/checkpoints/cnn_scratch_food101_best.pth
+# Evaluate
+python scripts/evaluate.py --config configs/cnn_scratch.yaml --checkpoint results/checkpoints/cnn_scratch_food101_best.pth
 
-# Grad-CAM visualization
-python scripts/visualize_gradcam.py \
-    --config configs/cnn_scratch.yaml \
-    --checkpoint results/checkpoints/cnn_scratch_food101_best.pth \
-    --num-images 16
+# Grad-CAM
+python scripts/visualize_gradcam.py --config configs/cnn_scratch.yaml --checkpoint <path> --num-images 16
 ```
 
 ---
 
 ## 📊 Results
 
-> Results will be populated after training runs on Colab.
+> _Results table will be updated after training runs._
 
-| Model | Top-1 Acc | Top-5 Acc | F1 (macro) | Params | Training Time |
-|-------|:---------:|:---------:|:----------:|:------:|:------------:|
-| CNN Scratch | — | — | — | 9.57M | — |
-| ResNet-50 | — | — | — | 23.71M | — |
-| EfficientNet-B0 | — | — | — | 4.14M | — |
-| ViT-Small | — | — | — | 21.70M | — |
+| Model | Top-1 Acc | Top-5 Acc | F1 (macro) | Params |
+|:------|:---------:|:---------:|:----------:|:------:|
+| CNN Scratch | — | — | — | 9.57M |
+| ResNet-50 | — | — | — | 23.71M |
+| EfficientNet-B0 | — | — | — | 4.14M |
+| ViT-Small | — | — | — | 21.70M |
 
 ---
 
 ## 🔍 Grad-CAM Visualizations
 
-> Will be generated after training. Shows what each model "looks at" when classifying food.
+> _Will be added after training. Shows what each model "looks at" when classifying food._
 
-```bash
-python scripts/visualize_gradcam.py --config configs/cnn_scratch.yaml --checkpoint <path> --num-images 16
-```
+<!-- ![Grad-CAM Grid](results/figures/gradcam_comparison.png) -->
 
 ---
 
-## 🧠 Key Design Decisions
-
-### Why Food-101?
-- 101 classes — enough complexity to show model architecture matters
-- 101K images — realistic scale, not a toy dataset
-- Noisy labels — real-world challenge (some images are intentionally mislabeled)
-- Fine-grained recognition — distinguishing "steak" from "filet mignon" requires nuance
-
-### Why Mixup + CutMix?
-- Regularization without extra data
-- Forces the model to learn from partial information
-- Reduces overconfidence (works synergistically with label smoothing)
-- Used in every modern training recipe (DeiT, ResNeXt-WSL, EfficientNetV2)
-
-### Why Layer-wise LR Decay for ViT?
-- ViT's shallow layers capture positional and patch-level features
-- Deep layers + head need to adapt to Food-101
-- LLRD preserves pretrained representations while allowing task adaptation
-- Standard in transformer fine-tuning (BEiT, MAE, DINOv2)
-
----
-
-## 📝 Interview Prep Points
+## 🧠 Design Decisions
 
 <details>
-<summary>Click to expand key talking points</summary>
+<summary><b>Why Food-101?</b></summary>
 
-### CNN From Scratch
-- **Kaiming initialization** — proper init for ReLU networks prevents vanishing/exploding gradients
-- **Batch normalization** — normalizes layer inputs, allows higher LR, mild regularization
-- **Global Average Pooling** — replaces FC layers, reduces parameters, adds spatial invariance
+- **101 classes** — enough complexity to show architecture matters
+- **101K images** — realistic scale, not a toy dataset  
+- **Noisy labels** — real-world challenge (some training images are intentionally mislabeled)
+- **Fine-grained** — distinguishing "steak" from "filet mignon" requires nuance
+</details>
 
-### Transfer Learning
-- **Why it works** — ImageNet features (edges, textures, shapes) transfer to food images
-- **Gradual unfreezing** — prevents catastrophic forgetting of pretrained features
-- **Discriminative LR** — early layers need less change (universal features), later layers need more (task-specific)
+<details>
+<summary><b>Why Mixup + CutMix?</b></summary>
 
-### Vision Transformers
-- **Self-attention** — captures global dependencies (a CNN needs many stacked layers for this)
-- **Positional embeddings** — ViT has no inductive bias for locality, needs explicit position info
-- **LLRD** — critical for fine-tuning: deeper layers adapted more, shallower layers preserved
-- **ViT needs more data** — DeiT showed regularization (Mixup, CutMix, stochastic depth) can compensate
+- Regularization without extra data
+- Forces model to learn from partial information
+- Reduces overconfidence (synergistic with label smoothing)
+- Used in every modern recipe: DeiT, ResNeXt-WSL, EfficientNetV2
+</details>
 
-### Grad-CAM
-- **Uses gradients** — gradient of target class w.r.t. feature maps shows importance
-- **Channel weights** — global average pool of gradients gives per-channel importance
-- **Validates correctness** — model should look at the food, not the plate or background
+<details>
+<summary><b>Why Layer-wise LR Decay for ViT?</b></summary>
 
+- Shallow ViT layers capture positional/patch features → preserve them
+- Deep layers + head need to adapt to the new task → higher LR
+- Standard in transformer fine-tuning (BEiT, MAE, DINOv2)
+</details>
+
+<details>
+<summary><b>Why Gradual Unfreezing for Transfer Learning?</b></summary>
+
+- Prevents catastrophic forgetting of pretrained features
+- Train classifier head first (new task), then deeper backbone layers
+- Discriminative LR: backbone gets 10x lower learning rate
 </details>
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **PyTorch** — model building and training
-- **torchvision** — pretrained models and transforms
-- **timm** — Vision Transformer models
-- **Weights & Biases** — experiment tracking and dashboards
-- **scikit-learn** — evaluation metrics
-- **matplotlib / seaborn** — visualization
+| Tool | Purpose |
+|------|---------|
+| PyTorch | Model building & training |
+| torchvision | Pretrained models & transforms |
+| timm | Vision Transformer models |
+| Weights & Biases | Experiment tracking |
+| scikit-learn | Evaluation metrics |
+| matplotlib / seaborn | Visualization |
 
 ---
 
