@@ -55,6 +55,7 @@ notebooks/*.py
 
 # Internal planning (not for GitHub)
 implementation_plan.md
+scripts/convert_notebooks.py
 
 # Test smoke tests (dev-only)
 test_phase*.py
