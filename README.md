@@ -132,22 +132,32 @@ python scripts/visualize_gradcam.py --config configs/cnn_scratch.yaml --checkpoi
 
 ## 📊 Results
 
-> _Results table will be updated after training runs._
+Trained on Food-101 (101 classes, 101K images) using Google Colab T4 GPU.
 
 | Model | Top-1 Acc | Top-5 Acc | F1 (macro) | Params |
 |:------|:---------:|:---------:|:----------:|:------:|
-| CNN Scratch | — | — | — | 9.57M |
-| ResNet-50 | — | — | — | 23.71M |
-| EfficientNet-B0 | — | — | — | 4.14M |
-| ViT-Small | — | — | — | 21.70M |
+| CNN Scratch | 32.80% | 62.83% | 29.32% | 9.57M |
+| ResNet-50 | 85.14% | 96.81% | 85.10% | 23.71M |
+| EfficientNet-B0 | 71.12% | 91.64% | 70.43% | 4.14M |
+| **ViT-Small** | **89.02%** | **98.22%** | **88.97%** | 21.70M |
+
+> **Key Takeaway:** The Vision Transformer achieves the best accuracy (89.02%), demonstrating the power of self-attention for fine-grained food classification. Transfer learning (ResNet-50, EfficientNet-B0) massively outperforms training from scratch, while ViT's layer-wise LR decay enables the best overall performance.
 
 ---
 
 ## 🔍 Grad-CAM Visualizations
 
-> _Will be added after training. Shows what each model "looks at" when classifying food._
+Grad-CAM heatmaps showing what each model "looks at" when classifying food:
 
-<!-- ![Grad-CAM Grid](results/figures/gradcam_comparison.png) -->
+| CNN Scratch | ResNet-50 |
+|:-----------:|:---------:|
+| ![CNN Scratch Grad-CAM](results/figures/cnn_scratch_food101_gradcam.png) | ![ResNet-50 Grad-CAM](results/figures/resnet50_finetune_food101_gradcam.png) |
+
+| EfficientNet-B0 | ViT-Small |
+|:---------------:|:---------:|
+| ![EfficientNet Grad-CAM](results/figures/efficientnet_b0_finetune_food101_gradcam.png) | ![ViT Grad-CAM](results/figures/vit_finetune_food101_gradcam.png) |
+
+> **Observation:** The scratch CNN focuses on texture/edges, transfer learning models attend to food-specific regions, and ViT captures the most semantically relevant areas of each dish.
 
 ---
 

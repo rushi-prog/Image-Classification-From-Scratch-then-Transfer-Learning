@@ -1,0 +1,8 @@
+{
+  "accuracy": 89.02178217821782,
+  "top5_accuracy": 98.21782178217822,
+  "f1_macro": 88.9704424953908,
+  "f1_weighted": 88.97044249539081,
+  "per_class_accuracy_mean": 89.02178217821782,
+  "per_class_accuracy_std": 7.547284659712518
+}

@@ -22,13 +22,14 @@ env/
 *.tar.gz
 *.zip
 
-# Model Checkpoints & Results (large files)
+# Model Checkpoints (large files — don't push)
 results/checkpoints/
-results/figures/
-results/metrics/
+*.pdf
 *.pth
 *.pt
 *.onnx
+
+# Keep results/figures/ and results/metrics/ tracked (small, needed for README)
 
 # Weights & Biases
 wandb/
